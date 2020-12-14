@@ -65,6 +65,7 @@ b['Platform'][18]='Others'
 b['producido'][18]=b_others
 plt.figure(figsize=(10, 8))
 plt.pie(b['producido'][:19], labels=b['Platform'][:19], autopct='%1.1f%%', shadow=True, startangle=90)
+plt.savefig('1.png')
 plt.show()
 
 
@@ -78,10 +79,20 @@ b['Platform'][7]='Others'
 b['producido'][7]=b_others
 plt.figure(figsize=(10, 8))
 plt.pie(b['producido'][:8], labels=b['Platform'][:8], autopct='%1.1f%%', shadow=True, startangle=90)
+plt.savefig('2.png')
 plt.show()
 
 
 #Comparativa de juegos plataforma vs multiplataforma
 
 sns.displot(datos_actuales, x="Rank", col="Multiplataforma", kind="kde", fill=True)
+plt.savefig('3.png')
 plt.show()
+
+
+#Por cada plataforma
+datos_actuales_plat=datos_actuales[(datos_actuales['Platform']=='PS4')| (datos_actuales['Platform']=='PC')| (datos_actuales['Platform']=='XOne')| (datos_actuales['Platform']=='NS')]
+sns.displot(datos_actuales_plat, x="Rank", hue="Multiplataforma", kind="kde",col="Platform", fill=True)
+plt.savefig('4.png')
+plt.show()
+

@@ -208,3 +208,77 @@ sns.barplot(x='Genre', y='Sale_Price', hue='Sale_Area', palette="Set2", data=com
 plt.xticks(rotation=70)
 plt.savefig('13.png')
 plt.show()
+
+
+### Analisis top ventas
+
+
+datos_shooter=datos_actuales[datos_actuales['Genre']=='Shooter']
+datos_sport=datos_actuales[datos_actuales['Genre']=='Sports']
+
+#Como afecta la clasificacion ESBR a las ventas
+
+#shooters
+datos_shooter_ESRB=datos_shooter[datos_shooter['ESRB_Rating'].isna()==False]
+datos_shooter_nESRB=datos_shooter[datos_shooter['ESRB_Rating'].isna()]
+sns.displot(datos_shooter_ESRB, x="Rank", col='ESRB_Rating', kind="kde", fill=True)
+plt.savefig('14.png')
+plt.show()
+
+#sport
+
+datos_sport_ESRB=datos_sport[datos_sport['ESRB_Rating'].isna()==False]
+datos_sport_nESRB=datos_sport[datos_sport['ESRB_Rating'].isna()]
+
+sns.displot(datos_sport_ESRB, x="Rank", col='ESRB_Rating', kind="kde", fill=True)
+plt.savefig('15.png')
+plt.show()
+
+
+#Las distribuidoras con más ventas
+
+#shooter
+datos_shooter_ESRB_pu = datos_shooter_ESRB.groupby(by=['Publisher'])['producido'].sum()
+datos_shooter_ESRB_pu= datos_shooter_ESRB_pu.reset_index()
+datos_shooter_ESRB_pu = datos_shooter_ESRB_pu.sort_values(by=['producido'], ascending=False)
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Publisher", y="producido", data=datos_shooter_ESRB_pu.iloc[0:15,:],ci=None)
+plt.xticks(rotation=90)
+plt.savefig('16.png')
+plt.show()
+
+#sport
+datos_sport_ESRB_pu = datos_sport_ESRB.groupby(by=['Publisher'])['producido'].sum()
+datos_sport_ESRB_pu= datos_sport_ESRB_pu.reset_index()
+datos_sport_ESRB_pu = datos_sport_ESRB_pu.sort_values(by=['producido'], ascending=False)
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Publisher", y="producido", data=datos_sport_ESRB_pu.iloc[0:15,:],ci=None)
+plt.xticks(rotation=90)
+plt.savefig('17.png')
+plt.show()
+
+
+#criterio de seleccion para tener la mayor probabilidad de ventas
+
+#shooter
+datos_shooter_final=datos_shooter_ESRB[((datos_shooter_ESRB['Publisher']=='Activision')|(datos_shooter_ESRB['Publisher']=='Electronic Arts'))&(datos_shooter_ESRB['ESRB_Rating']=='M')]
+
+#valor medio shooter
+datos_shooter_final['producido'].mean()
+
+#esstimacion no parametrica de la funcion de densidad
+
+sns.displot(datos_shooter_final, x="Rank", kind="kde", fill=True)
+plt.savefig('18.png')
+plt.show()
+
+#Sport
+
+datos_sport_final=datos_sport_ESRB[(datos_sport_ESRB['Publisher']=='EA Sports')|(datos_sport_ESRB['Publisher']=='Electronic Arts')|(datos_sport_ESRB['Publisher']=='2K Sports')]
+
+#media
+datos_sport_final['producido'].mean()
+
+sns.displot(datos_sport_final, x="Rank", kind="kde", fill=True)
+plt.savefig('19.png')
+plt.show()

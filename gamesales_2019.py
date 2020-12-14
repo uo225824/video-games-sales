@@ -96,3 +96,77 @@ sns.displot(datos_actuales_plat, x="Rank", hue="Multiplataforma", kind="kde",col
 plt.savefig('4.png')
 plt.show()
 
+### Analisis por género
+
+datos_genre = datos_actuales.groupby(by=['Genre'])['producido'].sum()
+datos_actuales['Genre'].value_counts()
+datos_genre = datos_genre.reset_index()
+datos_genre['count']=datos_actuales['Genre'].value_counts().reset_index().sort_values(by=['index'])['Genre'].values
+datos_genre = datos_genre.sort_values(by=['producido'], ascending=False)
+
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", palette="Set2",data=datos_genre)
+plt.xticks(rotation=90)
+plt.savefig('5.png')
+plt.show()
+
+
+#Ventas medias por genero
+datos_genre['producido']=datos_genre['producido']/datos_genre['count']
+datos_genre = datos_genre.sort_values(by=['producido'], ascending=False)
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", palette="Set2",data=datos_genre)
+plt.xticks(rotation=90)
+plt.savefig('6.png')
+plt.show()
+
+# Analisis por cada una de las cuatro consolas principales por genero
+
+datos_ps4=datos_actuales[datos_actuales['Platform']=='PS4']
+datos_pc=datos_actuales[datos_actuales['Platform']=='PC']
+datos_xone=datos_actuales[datos_actuales['Platform']=='XOne']
+datos_ns=datos_actuales[datos_actuales['Platform']=='NS']
+
+#PS4
+datos_genre_ps4 = datos_ps4.groupby(by=['Genre'])['producido'].sum()
+datos_genre_ps4 = datos_genre_ps4.reset_index()
+datos_genre_ps4 = datos_genre_ps4.sort_values(by=['producido'], ascending=False)
+#PS4
+datos_genre_pc = datos_pc.groupby(by=['Genre'])['producido'].sum()
+datos_genre_pc = datos_genre_pc.reset_index()
+datos_genre_pc = datos_genre_pc.sort_values(by=['producido'], ascending=False)
+#PS4
+datos_genre_xone = datos_xone.groupby(by=['Genre'])['producido'].sum()
+datos_genre_xone = datos_genre_xone.reset_index()
+datos_genre_xone = datos_genre_xone.sort_values(by=['producido'], ascending=False)
+#PS4
+datos_genre_ns = datos_ns.groupby(by=['Genre'])['producido'].sum()
+datos_genre_ns = datos_genre_ns.reset_index()
+datos_genre_ns = datos_genre_ns.sort_values(by=['producido'], ascending=False)
+
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", data=datos_genre_ps4)
+plt.xticks(rotation=90)
+plt.savefig('7.png')
+plt.show()
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", data=datos_genre_pc)
+plt.xticks(rotation=90)
+plt.savefig('8.png')
+plt.show()
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", data=datos_genre_xone)
+plt.xticks(rotation=90)
+plt.savefig('9.png')
+plt.show()
+
+plt.figure(figsize=(15, 10))
+sns.barplot(x="Genre", y="producido", data=datos_genre_ns)
+plt.xticks(rotation=90)
+plt.savefig('10.png')
+plt.show()

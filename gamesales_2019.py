@@ -170,3 +170,41 @@ sns.barplot(x="Genre", y="producido", data=datos_genre_ns)
 plt.xticks(rotation=90)
 plt.savefig('10.png')
 plt.show()
+
+
+
+### Analisis por mercado
+
+
+datos_actuales_genre = datos_actuales[['Genre', 'NA_Sales', 'PAL_Sales', 'JP_Sales', 'Other_Sales']]
+# comp_genre
+comp_map = datos_actuales_genre.groupby(by=['Genre']).sum()
+comp_map=comp_map.sort_values(by=['NA_Sales'], ascending=False)
+comp_table = comp_map.reset_index()
+comp_table = pd.melt(comp_table, id_vars=['Genre'], value_vars=['NA_Sales', 'PAL_Sales', 'JP_Sales', 'Other_Sales'], var_name='Sale_Area', value_name='Sale_Price')
+a=comp_table.groupby(by=['Sale_Area']).sum().reset_index()
+a=a.sort_values(by=['Sale_Price'], ascending=False)
+plt.figure(figsize=(15, 10))
+sns.barplot( y='Sale_Price', x='Sale_Area', data=a)
+plt.xticks(rotation=70)
+plt.savefig('11.png')
+plt.show()
+
+
+#analisis de mercado por genero (mapa de calor)
+
+plt.figure(figsize=(15, 10))
+sns.set(font_scale=1)
+sns.heatmap(comp_map, annot=True, fmt = '.1f')
+
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+plt.savefig('12.png')
+plt.show()
+
+#analisis de mercado por genero (grafico barras)
+plt.figure(figsize=(15, 10))
+sns.barplot(x='Genre', y='Sale_Price', hue='Sale_Area', palette="Set2", data=comp_table)
+plt.xticks(rotation=70)
+plt.savefig('13.png')
+plt.show()

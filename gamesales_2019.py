@@ -20,8 +20,6 @@ datos_short=pd.read_csv('vgsales-12-4-2019-short.csv')
 datos['producido']=datos['Total_Shipped']
 datos['producido'][datos['Total_Shipped'].isna()]=datos['Global_Sales'][datos['Total_Shipped'].isna()]
 
-#Rellenemos con ceros los datos faltantes. Estos valores se corresponden a ventas menores a los 0.01 millones
-datos['producido'][datos['producido'].isna()]=0
 
 # vemos que hay regiones que tienen datos faltantes, no sabemos si es por que toman valores muy bajos
 #o porque realmente faltan. Para poder calcularlos vamos a utilizar la diferencia con el global.
@@ -30,10 +28,6 @@ indJ=datos['JP_Sales'].isna()
 indN=datos['NA_Sales'].isna()
 indP=datos['PAL_Sales'].isna()
 indO=datos['Other_Sales'].isna()
-datos['JP_Sales'][indJ]=0
-datos['NA_Sales'][indN]=0
-datos['PAL_Sales'][indP]=0
-datos['Other_Sales'][indO]=0
 
 #Este paso es posible que no sea necesario, pero de estas formas nos limpiamos las manos
 
@@ -71,7 +65,7 @@ plt.show()
 
 # Plataformas con mayor número de juegos vendidos en los ultimos años
 
-datos_actuales=datos[datos['Year']>2014]
+datos_actuales=datos[(datos['Year']>2014) &(datos['producido'].isna()==False)]
 b=datos_actuales.groupby(by=['Platform'])['producido'].sum().sort_values(ascending=False).to_frame()
 b_others=b[7:].sum()
 b.reset_index(inplace=True)
@@ -85,7 +79,20 @@ plt.show()
 
 #Comparativa de juegos plataforma vs multiplataforma
 
-sns.displot(datos_actuales, x="Rank", col="Multiplataforma", kind="kde", fill=True)
+#Rellenamos el esbr delos juegos sin rating con SC(sin categoria)
+datos_actuales['ESRB_Rating'][datos_actuales['ESRB_Rating'].isna()]='SC'
+
+
+#Agrupamos los juegos identicos en distinras plataformas y reajustamos el ranking
+
+d = {'producido':'producido', 'Multiplataforma':'Multiplataforma'}
+datos_platf=datos_actuales.groupby(['Name','Genre','Publisher','ESRB_Rating']).agg({'producido':'sum','Multiplataforma':'mean'}).rename(columns=d)
+datos_platf=datos_platf.reset_index()
+datos_platf=datos_platf.sort_values(by=['producido'], ascending=False)
+datos_platf['Rank']=np.arange(datos_platf.shape[0])+1
+
+#Comparativa
+sns.displot(datos_platf, x="Rank", col="Multiplataforma", kind="kde", fill=True)
 plt.savefig('3.png')
 plt.show()
 
@@ -99,9 +106,8 @@ plt.show()
 ### Analisis por género
 
 datos_genre = datos_actuales.groupby(by=['Genre'])['producido'].sum()
-datos_actuales['Genre'].value_counts()
 datos_genre = datos_genre.reset_index()
-datos_genre['count']=datos_actuales['Genre'].value_counts().reset_index().sort_values(by=['index'])['Genre'].values
+datos_genre['count']=datos_platf['Genre'].value_counts().reset_index().sort_values(by=['index'])['Genre'].values
 datos_genre = datos_genre.sort_values(by=['producido'], ascending=False)
 
 
@@ -213,8 +219,8 @@ plt.show()
 ### Analisis top ventas
 
 
-datos_shooter=datos_actuales[datos_actuales['Genre']=='Shooter']
-datos_sport=datos_actuales[datos_actuales['Genre']=='Sports']
+datos_shooter=datos_platf[datos_platf['Genre']=='Shooter']
+datos_sport=datos_platf[datos_platf['Genre']=='Sports']
 
 #Como afecta la clasificacion ESBR a las ventas
 
@@ -264,7 +270,7 @@ plt.show()
 datos_shooter_final=datos_shooter_ESRB[((datos_shooter_ESRB['Publisher']=='Activision')|(datos_shooter_ESRB['Publisher']=='Electronic Arts'))&(datos_shooter_ESRB['ESRB_Rating']=='M')]
 
 #valor medio shooter
-datos_shooter_final['producido'].mean()
+print(datos_shooter_final['producido'].mean())
 
 #esstimacion no parametrica de la funcion de densidad
 
@@ -277,7 +283,7 @@ plt.show()
 datos_sport_final=datos_sport_ESRB[(datos_sport_ESRB['Publisher']=='EA Sports')|(datos_sport_ESRB['Publisher']=='Electronic Arts')|(datos_sport_ESRB['Publisher']=='2K Sports')]
 
 #media
-datos_sport_final['producido'].mean()
+print(datos_sport_final['producido'].mean())
 
 sns.displot(datos_sport_final, x="Rank", kind="kde", fill=True)
 plt.savefig('19.png')

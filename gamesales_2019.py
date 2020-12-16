@@ -18,8 +18,7 @@ datos_short=pd.read_csv('vgsales-12-4-2019-short.csv')
 
 #Nueva variable
 datos['producido']=datos['Total_Shipped']
-datos['producido'][datos['Total_Shipped'].isna()]=datos['Global_Sales'][datos['Total_Shipped'].isna()]
-
+datos.loc[datos['Total_Shipped'].isna(),'producido']=datos.loc[datos['Total_Shipped'].isna(),'Global_Sales']
 
 # vemos que hay regiones que tienen datos faltantes, no sabemos si es por que toman valores muy bajos
 #o porque realmente faltan. Para poder calcularlos vamos a utilizar la diferencia con el global.
@@ -32,23 +31,23 @@ indO=datos['Other_Sales'].isna()
 #Este paso es posible que no sea necesario, pero de estas formas nos limpiamos las manos
 
 #Añadir zona faltante JP
-datos['JP_Sales'][indJ]=datos['Global_Sales'][indJ]-datos['NA_Sales'][indJ]-datos['PAL_Sales'][indJ]-datos['Other_Sales'][indJ]
-datos['JP_Sales'][datos['JP_Sales']<0.01]=0
+datos.loc[indJ,'JP_Sales']=datos.loc[indJ,'Global_Sales']-datos.loc[indJ,'NA_Sales']-datos.loc[indJ,'PAL_Sales']-datos.loc[indJ,'Other_Sales']
+datos.loc[datos['JP_Sales']<0.01,'JP_Sales']=0
 #Añadir zona faltante NA
-datos['NA_Sales'][indN]=datos['Global_Sales'][indN]-datos['JP_Sales'][indN]-datos['PAL_Sales'][indN]-datos['Other_Sales'][indN]
-datos['NA_Sales'][datos['NA_Sales']<0.01]=0
+datos.loc[indN,'NA_Sales']=datos.loc[indN,'Global_Sales']-datos.loc[indN,'JP_Sales']-datos.loc[indN,'PAL_Sales']-datos.loc[indN,'Other_Sales']
+datos.loc[datos['NA_Sales']<0.01,'NA_Sales']=0
 #Añadir zona faltante PAL
-datos['PAL_Sales'][indP]=datos['Global_Sales'][indP]-datos['NA_Sales'][indP]-datos['JP_Sales'][indP]-datos['Other_Sales'][indP]
-datos['PAL_Sales'][datos['PAL_Sales']<0.01]=0
+datos.loc[indP,'PAL_Sales']=datos.loc[indP,'Global_Sales']-datos.loc[indP,'NA_Sales']-datos.loc[indP,'JP_Sales']-datos.loc[indP,'Other_Sales']
+datos.loc[datos['PAL_Sales']<0.01,'PAL_Sales']=0
 #Añadir zona faltante Other
-datos['Other_Sales'][indO]=datos['Global_Sales'][indO]-datos['NA_Sales'][indO]-datos['PAL_Sales'][indO]-datos['JP_Sales'][indO]
-datos['Other_Sales'][datos['Other_Sales']<0.01]=0
+datos.loc[indO,'Other_Sales']=datos.loc[indO,'Global_Sales']-datos.loc[indO,'NA_Sales']-datos.loc[indO,'PAL_Sales']-datos.loc[indO,'JP_Sales']
+datos.loc[datos['Other_Sales']<0.01,'Other_Sales']=0
 
 
 #Añadir indicador multiplataforma
 indD=datos['Name'].duplicated(keep=False)
 datos['Multiplataforma']=0
-datos['Multiplataforma'][indD]=1
+datos.loc[indD,'Multiplataforma']=1
 
 ### Plataformas con mayor número de juegos vendidos
 
@@ -63,7 +62,7 @@ plt.savefig('1.png')
 plt.show()
 
 
-# Plataformas con mayor número de juegos vendidos en los ultimos años
+#Plataformas con mayor número de juegos vendidos en los ultimos años
 
 datos_actuales=datos[(datos['Year']>2014) &(datos['producido'].isna()==False)]
 b=datos_actuales.groupby(by=['Platform'])['producido'].sum().sort_values(ascending=False).to_frame()
@@ -113,7 +112,7 @@ datos_genre = datos_genre.sort_values(by=['producido'], ascending=False)
 
 plt.figure(figsize=(15, 10))
 sns.barplot(x="Genre", y="producido", palette="Set2",data=datos_genre)
-plt.xticks(rotation=90)
+plt.xticks(rotation=80)
 plt.savefig('5.png')
 plt.show()
 
@@ -220,7 +219,6 @@ plt.show()
 
 
 datos_shooter=datos_platf[datos_platf['Genre']=='Shooter']
-datos_sport=datos_platf[datos_platf['Genre']=='Sports']
 
 #Como afecta la clasificacion ESBR a las ventas
 
@@ -229,15 +227,6 @@ datos_shooter_ESRB=datos_shooter[datos_shooter['ESRB_Rating'].isna()==False]
 datos_shooter_nESRB=datos_shooter[datos_shooter['ESRB_Rating'].isna()]
 sns.displot(datos_shooter_ESRB, x="Rank", col='ESRB_Rating', kind="kde", fill=True)
 plt.savefig('14.png')
-plt.show()
-
-#sport
-
-datos_sport_ESRB=datos_sport[datos_sport['ESRB_Rating'].isna()==False]
-datos_sport_nESRB=datos_sport[datos_sport['ESRB_Rating'].isna()]
-
-sns.displot(datos_sport_ESRB, x="Rank", col='ESRB_Rating', kind="kde", fill=True)
-plt.savefig('15.png')
 plt.show()
 
 
@@ -253,15 +242,6 @@ plt.xticks(rotation=90)
 plt.savefig('16.png')
 plt.show()
 
-#sport
-datos_sport_ESRB_pu = datos_sport_ESRB.groupby(by=['Publisher'])['producido'].sum()
-datos_sport_ESRB_pu= datos_sport_ESRB_pu.reset_index()
-datos_sport_ESRB_pu = datos_sport_ESRB_pu.sort_values(by=['producido'], ascending=False)
-plt.figure(figsize=(15, 10))
-sns.barplot(x="Publisher", y="producido", data=datos_sport_ESRB_pu.iloc[0:15,:],ci=None)
-plt.xticks(rotation=90)
-plt.savefig('17.png')
-plt.show()
 
 
 #criterio de seleccion para tener la mayor probabilidad de ventas
@@ -278,13 +258,8 @@ sns.displot(datos_shooter_final, x="Rank", kind="kde", fill=True)
 plt.savefig('18.png')
 plt.show()
 
-#Sport
+#Ventas
 
-datos_sport_final=datos_sport_ESRB[(datos_sport_ESRB['Publisher']=='EA Sports')|(datos_sport_ESRB['Publisher']=='Electronic Arts')|(datos_sport_ESRB['Publisher']=='2K Sports')]
-
-#media
-print(datos_sport_final['producido'].mean())
-
-sns.displot(datos_sport_final, x="Rank", kind="kde", fill=True)
+sns.displot(datos_shooter_final, x="producido", kind="kde", fill=True)
 plt.savefig('19.png')
 plt.show()

@@ -247,7 +247,7 @@ plt.show()
 #criterio de seleccion para tener la mayor probabilidad de ventas
 
 #shooter
-datos_shooter_final=datos_shooter_ESRB[((datos_shooter_ESRB['Publisher']=='Activision')|(datos_shooter_ESRB['Publisher']=='Electronic Arts'))&(datos_shooter_ESRB['ESRB_Rating']=='M')]
+datos_shooter_final=datos_shooter_ESRB[((datos_shooter_ESRB['Publisher']=='Activision'))&(datos_shooter_ESRB['ESRB_Rating']=='M')]
 
 #valor medio shooter
 print(datos_shooter_final['producido'].mean())

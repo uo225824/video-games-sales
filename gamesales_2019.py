@@ -5,11 +5,13 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import warnings
 
 
 #Cargamos los dos set de datos disponibles
 datos=pd.read_csv('vgsales-12-4-2019.csv')
 datos_short=pd.read_csv('vgsales-12-4-2019-short.csv')
+warnings.filterwarnings('ignore')
 
 #En principio ambos set de datos tienen la misma información
 #con la diferencia de que datos es mas completo
